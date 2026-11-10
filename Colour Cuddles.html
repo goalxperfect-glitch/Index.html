@@ -1,0 +1,733 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Colour Cuddles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@600;700;800&display=swap">
+<style id="pagecss">
+/* Layout: a gallery of pictures, then a one-screen colouring desk (bar, paper, tools, palette). */
+:root {
+  --bg: #F4F0FF;
+  --surface: #FFFFFF;
+  --ink: #2B2140;
+  --muted: #62578A;
+  --accent: #FF5C93;
+  --accent-ink: #FFFFFF;
+  --line: #E0D6F7;
+  --soft: #EAE2FF;
+  --shadow: 0 6px 22px rgba(80, 50, 140, .15);
+  --paper: #FFFFFF;
+  --font-display: 'Fredoka', ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --font-body: 'Nunito', ui-rounded, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1D1731; --surface: #2A2242; --ink: #F4EFFF; --muted: #B8ADDA; --accent: #FF7AA8; --accent-ink: #2B1030;
+    --line: #3F3560; --soft: #382E58; --shadow: 0 6px 22px rgba(0, 0, 0, .35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1D1731; --surface: #2A2242; --ink: #F4EFFF; --muted: #B8ADDA; --accent: #FF7AA8; --accent-ink: #2B1030;
+  --line: #3F3560; --soft: #382E58; --shadow: 0 6px 22px rgba(0, 0, 0, .35);
+  color-scheme: dark;
+}
+html { height: 100%; box-sizing: border-box; }
+body {
+  height: 100%; box-sizing: border-box; margin: 0;
+  padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--bg); color: var(--ink);
+  font: 700 16px/1.4 var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; touch-action: manipulation; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+#app { height: 100%; display: flex; flex-direction: column; min-height: 0; max-width: 980px; margin: 0 auto; }
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- Gallery ---------- */
+.gal-head { display: flex; align-items: center; gap: 12px; padding: 6px 2px 0; }
+.logo { width: 52px; height: 52px; flex: none; }
+h1 { margin: 0; font: 600 30px/1.05 var(--font-display); letter-spacing: .2px; }
+.sub { margin: 2px 0 0; color: var(--muted); font-weight: 700; }
+.gal-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 2px 18px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (min-width: 620px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.card { display: flex; flex-direction: column; gap: 8px; text-align: left; background: var(--surface); border-radius: 24px; padding: 10px 10px 12px; box-shadow: var(--shadow); position: relative; transition: transform .15s; }
+.card:active { transform: scale(.97); }
+.thumb { background: #fff; border-radius: 16px; overflow: hidden; aspect-ratio: 600 / 760; }
+.thumb svg { display: block; width: 100%; height: 100%; }
+.cname { font: 600 17px/1.2 var(--font-display); padding: 0 4px; }
+.badge { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+.badge svg { width: 20px; height: 20px; }
+.note { margin-top: 22px; padding: 16px 18px; border-radius: 22px; background: var(--soft); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.note p { margin: 0; color: var(--muted); max-width: 60ch; }
+.note strong { color: var(--ink); }
+.linkbtn { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; font-weight: 800; padding: 6px 0; }
+
+/* ---------- Colouring desk ---------- */
+.bar { display: flex; align-items: center; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 16px 0 10px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); font: 600 16px var(--font-display); }
+.pill svg, .ibtn svg, .tool svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+#ptitle { flex: 1; min-width: 0; margin: 0; text-align: center; font: 600 20px var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ibtn { width: 46px; height: 46px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; position: relative; }
+.ibtn small { position: absolute; right: -2px; bottom: -2px; font: 700 11px var(--font-body); background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 0 5px; line-height: 17px; }
+.paperwrap { flex: 1; min-height: 0; overflow: auto; display: flex; background: var(--paper); border-radius: 26px; box-shadow: var(--shadow); overscroll-behavior: contain; }
+#paper { flex: none; margin: auto; display: block; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.tools { display: flex; gap: 8px; }
+.tool { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 6px; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); font: 700 12px var(--font-body); color: var(--ink); }
+.tool[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.tool:disabled { opacity: .4; cursor: default; }
+.palette { display: grid; grid-template-rows: repeat(2, 44px); grid-auto-flow: column; grid-auto-columns: 44px; gap: 10px; overflow-x: auto; padding: 6px 4px 10px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.sw { width: 44px; height: 44px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .75), 0 2px 6px rgba(0, 0, 0, .22); scroll-snap-align: start; position: relative; transition: transform .12s; }
+.sw[aria-pressed="true"] { transform: scale(1.14); outline: 4px solid var(--ink); outline-offset: 2px; }
+.sw.rb { background: conic-gradient(#FF4D6D, #FFA62B, #FFD93D, #4CC66E, #5CC8FF, #7B61FF, #FF8FC7, #FF4D6D); }
+@media (min-width: 760px) { .palette { grid-template-rows: 44px; justify-content: center; } }
+
+/* ---------- Overlays ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px; background: rgba(30, 20, 60, .55); overflow: hidden; }
+.mcard { position: relative; width: min(400px, 100%); background: var(--surface); border-radius: 30px; padding: 26px 22px 22px; text-align: center; box-shadow: 0 16px 50px rgba(0, 0, 0, .35); display: flex; flex-direction: column; gap: 12px; }
+.mcard h3 { margin: 0; font: 600 28px/1.1 var(--font-display); }
+.mcard p { margin: 0; color: var(--muted); }
+.macts { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.mbtn { min-height: 50px; border-radius: 999px; background: var(--soft); font: 600 18px var(--font-display); padding: 0 20px; }
+.mbtn.main { background: var(--accent); color: var(--accent-ink); }
+.confetti { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 3px; pointer-events: none; animation: fall 2.8s linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-weight: 800; max-width: calc(100% - 32px); }
+.sp { fill: #FFD93D; stroke: #2B2140; stroke-width: 2; pointer-events: none; transform-box: fill-box; transform-origin: center; animation: sp .6s ease-out forwards; }
+@keyframes sp { from { transform: translate(0, 0) scale(.3) rotate(0); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1) rotate(160deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sp, .confetti { animation: none; opacity: 0; } .card, .sw { transition: none; } }
+</style>
+
+<style id="artcss">
+.r { fill: #fff; stroke: #2B2140; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; cursor: pointer; }
+.bg { stroke: none; }
+.rs { fill: none; stroke: #fff; stroke-linecap: round; }
+.ro { fill: none; stroke: #2B2140; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.l { fill: none; stroke: #2B2140; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.k { fill: #2B2140; stroke: none; pointer-events: none; }
+.w { fill: #fff; stroke: none; pointer-events: none; }
+</style>
+
+<div id="app">
+  <section id="gallery" class="view">
+    <header class="gal-head">
+      <svg class="logo" viewBox="0 0 60 60" aria-hidden="true">
+        <ellipse cx="21" cy="14" rx="7" ry="14" fill="#FFB3CF" stroke="#2B2140" stroke-width="3"/>
+        <ellipse cx="39" cy="14" rx="7" ry="14" fill="#FFB3CF" stroke="#2B2140" stroke-width="3"/>
+        <ellipse cx="30" cy="38" rx="20" ry="17" fill="#fff" stroke="#2B2140" stroke-width="3"/>
+        <ellipse cx="23" cy="36" rx="3" ry="3.5" fill="#2B2140"/><ellipse cx="37" cy="36" rx="3" ry="3.5" fill="#2B2140"/>
+        <ellipse cx="30" cy="42" rx="3" ry="2.2" fill="#FF5C93"/>
+        <ellipse cx="16" cy="43" rx="4" ry="2.5" fill="#FF8FC7"/><ellipse cx="44" cy="43" rx="4" ry="2.5" fill="#FF8FC7"/>
+      </svg>
+      <div>
+        <h1>Colour Cuddles</h1>
+        <p class="sub">Pick a picture and start colouring!</p>
+      </div>
+    </header>
+    <div class="gal-scroll">
+      <div id="grid" class="grid"></div>
+      <footer class="note">
+        <p><strong>Private and free.</strong> No sign-up, no ads, no shopping. Your pictures stay on this device and are never sent anywhere.</p>
+        <button id="eraseAll" class="linkbtn" type="button">Erase all my pictures</button>
+      </footer>
+    </div>
+  </section>
+
+  <section id="play" class="view" hidden>
+    <div class="bar">
+      <button id="back" class="pill" type="button" aria-label="Back to all pictures"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Pictures</button>
+      <h2 id="ptitle"></h2>
+      <button id="zoom" class="ibtn" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4M11 8v6M8 11h6"/></svg><small id="zlabel">1×</small></button>
+      <button id="sound" class="ibtn" type="button" aria-label="Sound" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path id="wave" d="M16 9a4 4 0 010 6"/><path id="cross" d="M16 9l5 6M21 9l-5 6" hidden/></svg></button>
+    </div>
+    <div id="paperwrap" class="paperwrap"><svg id="paper" viewBox="0 0 600 760" role="img"></svg></div>
+    <div class="tools">
+      <button id="undo" class="tool" type="button"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg>Undo</button>
+      <button id="redo" class="tool" type="button"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/></svg>Redo</button>
+      <button id="eraser" class="tool" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M8 20h12"/><path d="M5 15l9-9a2 2 0 013 0l3 3a2 2 0 010 3l-7 7H8l-3-3a2 2 0 010-3z"/></svg>Rubber</button>
+      <button id="clear" class="tool" type="button"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></svg>Clear</button>
+      <button id="save" class="tool" type="button" hidden><svg viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Save</button>
+    </div>
+    <div id="palette" class="palette" role="group" aria-label="Colours"></div>
+  </section>
+</div>
+
+<div id="modal" class="modal" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ---------- Art kit: every picture is built from fillable regions (.r) ---------- */
+const fx = n => +(+n).toFixed(1);
+const E = (cx, cy, rx, ry, a) => `<ellipse class="r" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${a ? ` transform="rotate(${a} ${cx} ${cy})"` : ''}/>`;
+const C = (cx, cy, r) => `<circle class="r" cx="${cx}" cy="${cy}" r="${r}"/>`;
+const P = d => `<path class="r" d="${d}"/>`;
+const RC = (x, y, w, h, rx, a) => `<rect class="r" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"${a ? ` transform="rotate(${a} ${fx(x + w / 2)} ${fx(y + h / 2)})"` : ''}/>`;
+const L = d => `<path class="l" d="${d}"/>`;
+const LE = (cx, cy, rx, ry, a) => `<ellipse class="l" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"${a ? ` transform="rotate(${a} ${cx} ${cy})"` : ''}/>`;
+const LC = (cx, cy, r) => `<circle class="l" cx="${cx}" cy="${cy}" r="${r}"/>`;
+const K = (cx, cy, r) => `<circle class="k" cx="${cx}" cy="${cy}" r="${r}"/>`;
+const BG = `<rect class="r bg" x="0" y="0" width="600" height="760"/>`;
+const tube = (d, w) => `<path class="ro" d="${d}" style="stroke-width:${w + 10}px"/><path class="r rs" d="${d}" style="stroke-width:${w}px"/>`;
+const mirror = s => `<g transform="translate(600 0) scale(-1 1)">${s}</g>`;
+
+const eye = (x, y, r = 22) =>
+  `<ellipse class="k" cx="${x}" cy="${y}" rx="${r}" ry="${fx(r * 1.12)}"/>` +
+  `<circle class="w" cx="${fx(x - r * .3)}" cy="${fx(y - r * .4)}" r="${fx(r * .38)}"/>` +
+  `<circle class="w" cx="${fx(x + r * .32)}" cy="${fx(y + r * .42)}" r="${fx(r * .17)}"/>`;
+const blush = (x, y, rx = 24, ry = 14) => E(x, y, rx, ry);
+const smileW = (x, y, w = 18) => L(`M${x} ${y} L${x} ${y + 12} M${x} ${y + 12} Q${fx(x - w * .6)} ${y + 30} ${fx(x - w * 1.6)} ${y + 14} M${x} ${y + 12} Q${fx(x + w * .6)} ${y + 30} ${fx(x + w * 1.6)} ${y + 14}`);
+const smile = (x, y, w = 22) => L(`M${x - w} ${y} Q${x} ${y + w * .9} ${x + w} ${y}`);
+
+const heart = (cx, cy, s) => P(`M${fx(cx)} ${fx(cy + 8 * s)} C${fx(cx - 14 * s)} ${fx(cy - 2 * s)} ${fx(cx - 10 * s)} ${fx(cy - 14 * s)} ${fx(cx)} ${fx(cy - 6 * s)} C${fx(cx + 10 * s)} ${fx(cy - 14 * s)} ${fx(cx + 14 * s)} ${fx(cy - 2 * s)} ${fx(cx)} ${fx(cy + 8 * s)}Z`);
+const star = (cx, cy, R, r = R * .5) => {
+  let d = '';
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R;
+    d += (i ? 'L' : 'M') + fx(cx + q * Math.cos(a)) + ' ' + fx(cy + q * Math.sin(a));
+  }
+  return P(d + 'Z');
+};
+const sparkle = (x, y, R) => P(`M${x} ${y - R} Q${fx(x + R * .16)} ${fx(y - R * .16)} ${x + R} ${y} Q${fx(x + R * .16)} ${fx(y + R * .16)} ${x} ${y + R} Q${fx(x - R * .16)} ${fx(y + R * .16)} ${x - R} ${y} Q${fx(x - R * .16)} ${fx(y - R * .16)} ${x} ${y - R}Z`);
+const decor = list => list.map(([t, x, y, v]) => t === 'h' ? heart(x, y, v) : t === 's' ? star(x, y, v) : sparkle(x, y, v)).join('');
+const cloudD = (x, y, s) => `M${fx(x - 45 * s)} ${fx(y + 15 * s)} A${fx(20 * s)} ${fx(20 * s)} 0 0 1 ${fx(x - 38 * s)} ${fx(y - 22 * s)} A${fx(26 * s)} ${fx(26 * s)} 0 0 1 ${fx(x + 12 * s)} ${fx(y - 30 * s)} A${fx(30 * s)} ${fx(30 * s)} 0 0 1 ${fx(x + 45 * s)} ${fx(y + 15 * s)}Z`;
+const cloud = (x, y, s) => P(cloudD(x, y, s));
+const flower = (x, y, s = 1) => {
+  let o = '';
+  for (let i = 0; i < 5; i++) {
+    const a = -Math.PI / 2 + i * 2 * Math.PI / 5;
+    o += C(fx(x + 17 * s * Math.cos(a)), fx(y + 17 * s * Math.sin(a)), fx(13 * s));
+  }
+  return o + C(x, y, fx(10 * s));
+};
+const daisy = (x, y, off, pr, cr) => {
+  let o = '';
+  for (let i = 0; i < 8; i++) {
+    const a = i * 45 * Math.PI / 180;
+    o += E(fx(x + off * Math.cos(a)), fx(y + off * Math.sin(a)), fx(pr * .62), pr, i * 45 - 90);
+  }
+  return o + C(x, y, cr);
+};
+const bow = (x, y, s = 1) =>
+  P(`M${x} ${y} L${fx(x - 42 * s)} ${fx(y - 26 * s)} L${fx(x - 42 * s)} ${fx(y + 26 * s)}Z`) +
+  P(`M${x} ${y} L${fx(x + 42 * s)} ${fx(y - 26 * s)} L${fx(x + 42 * s)} ${fx(y + 26 * s)}Z`) + C(x, y, fx(12 * s));
+const bone = (x, y, a) => `<g transform="translate(${x} ${y}) rotate(${a})"><path class="r" d="M-70 -12 L70 -12 A20 20 0 1 1 104.3 0 A20 20 0 1 1 70 12 L-70 12 A20 20 0 1 1 -104.3 0 A20 20 0 1 1 -70 -12Z"/></g>`;
+const band = (cx, cy, R, r) => P(`M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy} L${cx + r} ${cy} A${r} ${r} 0 0 0 ${cx - r} ${cy}Z`);
+const rays = (cx, cy, n, r0, r1, half) => {
+  let o = '';
+  for (let i = 0; i < n; i++) {
+    const a = i * 2 * Math.PI / n - Math.PI / 2;
+    const p = (rr, aa) => fx(cx + rr * Math.cos(aa)) + ' ' + fx(cy + rr * Math.sin(aa));
+    o += P(`M${p(r0, a - half)} L${p(r1, a)} L${p(r0, a + half)}Z`);
+  }
+  return o;
+};
+
+const PAGES = [
+  {
+    id: 'bunny', name: 'Little Bunny', draw: () => {
+      let s = BG;
+      s += decor([['h', 70, 330, 2.2], ['h', 535, 290, 2.4], ['h', 80, 540, 1.8], ['h', 530, 560, 2], ['s', 62, 110, 26], ['s', 545, 125, 24], ['s', 520, 705, 22], ['p', 112, 235, 22], ['p', 500, 440, 20]]);
+      s += P('M170 640 C150 540 200 450 300 450 C400 450 450 540 430 640 C420 700 180 700 170 640Z');
+      s += E(300, 595, 78, 78);
+      s += E(215, 696, 66, 36) + E(385, 696, 66, 36);
+      s += LE(215, 702, 22, 14) + LC(192, 680, 7) + LC(215, 674, 7) + LC(238, 680, 7);
+      s += LE(385, 702, 22, 14) + LC(362, 680, 7) + LC(385, 674, 7) + LC(408, 680, 7);
+      s += E(235, 150, 50, 118, -10) + E(237, 158, 26, 84, -10) + E(365, 150, 50, 118, 10) + E(363, 158, 26, 84, 10);
+      s += E(300, 340, 138, 118);
+      s += eye(238, 332) + eye(362, 332);
+      s += blush(200, 376) + blush(400, 376);
+      s += RC(287, 392, 26, 24, 8) + L('M300 396 L300 414');
+      s += E(300, 366, 15, 11) + smileW(300, 377, 16);
+      s += RC(293, 535, 14, 70, 6) + P('M307 568 Q345 538 362 562 Q338 584 307 578Z');
+      for (let i = 0; i < 8; i++) { const a = i * 45 * Math.PI / 180; s += E(fx(300 + 30 * Math.cos(a)), fx(510 + 30 * Math.sin(a)), 13, 21, i * 45 - 90); }
+      s += C(300, 510, 17);
+      s += E(229, 537, 65, 24, 50.6) + E(371, 537, 65, 24, -50.6) + C(268, 583, 24) + C(332, 583, 24);
+      return s;
+    }
+  },
+  {
+    id: 'kitty', name: 'Yarn Kitty', draw: () => {
+      let s = BG;
+      s += decor([['h', 70, 250, 2.2], ['h', 540, 330, 2], ['h', 520, 130, 1.8], ['s', 60, 90, 26], ['s', 545, 560, 24], ['p', 105, 420, 22], ['p', 500, 240, 22], ['s', 300, 70, 20]]);
+      s += tube('M410 660 C530 680 575 570 525 490', 38);
+      s += P('M190 650 C175 560 215 470 300 470 C385 470 425 560 410 650 C400 710 200 710 190 650Z');
+      s += E(300, 612, 68, 72);
+      s += E(235, 704, 52, 32) + E(365, 704, 52, 32);
+      s += L('M215 696 L215 714 M236 700 L236 718 M345 700 L345 718 M366 696 L366 714');
+      s += P('M162 300 Q150 175 178 160 Q190 155 205 168 L285 245Z') + P('M438 300 Q450 175 422 160 Q410 155 395 168 L315 245Z');
+      s += P('M180 270 Q175 198 190 188 L245 236Z') + P('M420 270 Q425 198 410 188 L355 236Z');
+      s += E(300, 350, 150, 112);
+      s += L('M300 245 L300 275 M270 252 L276 276 M330 252 L324 276');
+      s += eye(240, 345, 24) + eye(360, 345, 24);
+      s += blush(203, 388, 22, 13) + blush(397, 388, 22, 13);
+      s += P('M288 378 Q300 372 312 378 Q306 392 300 394 Q294 392 288 378Z') + L('M300 394 L300 402 M300 402 Q285 418 268 404 M300 402 Q315 418 332 404');
+      s += L('M182 392 L112 378 M184 406 L114 412 M418 392 L488 378 M416 406 L486 412');
+      s += E(262, 648, 32, 22) + E(338, 648, 32, 22) + L('M254 640 L254 654 M270 640 L270 654 M330 640 L330 654 M346 640 L346 654');
+      s += C(105, 680, 60);
+      s += L('M62 662 Q105 636 148 662 M50 690 Q105 662 160 690 M62 718 Q105 692 148 718 M82 628 Q62 690 90 738');
+      s += L('M160 722 Q190 752 235 742');
+      return s;
+    }
+  },
+  {
+    id: 'puppy', name: 'Happy Puppy', draw: () => {
+      let s = BG;
+      s += decor([['h', 65, 190, 2.2], ['h', 545, 200, 2], ['h', 70, 560, 1.8], ['s', 60, 90, 26], ['s', 548, 85, 24], ['p', 110, 470, 22], ['p', 520, 440, 22], ['s', 535, 640, 20]]);
+      s += tube('M405 600 C470 600 505 545 482 490', 30);
+      s += L('M515 520 Q532 500 526 478 M528 560 Q552 540 548 516');
+      s += E(178, 322, 44, 100, 12) + E(422, 322, 44, 100, -12);
+      s += P('M195 640 C175 530 220 440 300 440 C380 440 425 530 405 640 C395 675 205 675 195 640Z');
+      s += E(300, 600, 68, 70);
+      s += P('M212 432 Q300 472 388 432 L394 456 Q300 496 206 456Z') + C(300, 486, 15);
+      s += E(300, 320, 128, 112);
+      s += E(352, 298, 44, 40, -15);
+      s += eye(250, 302, 22) + eye(350, 302, 22);
+      s += blush(203, 358, 22, 13) + blush(397, 358, 22, 13);
+      s += E(300, 372, 66, 46);
+      s += P('M278 396 Q282 448 300 450 Q318 448 322 396Z') + L('M300 402 L300 426');
+      s += E(300, 352, 26, 18);
+      s += L('M300 368 L300 392 M300 392 Q280 412 258 394 M300 392 Q320 412 342 394');
+      s += E(252, 650, 36, 26) + E(348, 650, 36, 26);
+      s += L('M242 640 L242 656 M258 640 L258 656 M338 640 L338 656 M354 640 L354 656');
+      s += bone(300, 718, -5);
+      return s;
+    }
+  },
+  {
+    id: 'duckling', name: 'Pond Duckling', draw: () => {
+      let s = BG;
+      s += decor([['h', 70, 330, 2.2], ['h', 540, 290, 2], ['s', 540, 70, 24], ['p', 70, 460, 22], ['p', 520, 440, 22], ['h', 90, 235, 1.6]]);
+      s += `<circle class="r" cx="85" cy="105" r="44"/>` + rays(85, 105, 8, 56, 82, .2);
+      s += cloud(450, 120, 1.4);
+      s += P('M440 520 Q505 478 522 506 Q500 545 448 562Z');
+      s += E(300, 540, 160, 112);
+      s += P('M165 535 Q125 600 205 628 Q255 632 255 592 Q248 538 165 535Z');
+      s += C(300, 320, 112);
+      s += L('M300 210 Q282 180 266 188 M300 210 Q300 174 314 176');
+      s += eye(248, 312, 20) + eye(352, 312, 20);
+      s += blush(204, 360, 22, 14) + blush(396, 360, 22, 14);
+      s += P('M258 356 Q300 336 342 356 Q338 394 300 398 Q262 394 258 356Z') + L('M280 378 Q300 390 320 378');
+      s += P('M0 648 Q75 620 150 648 T300 648 T450 648 T600 648 L600 760 L0 760Z');
+      s += L('M40 686 Q75 668 110 686 M400 680 Q435 662 470 680 M240 712 Q275 694 310 712');
+      s += C(110, 725, 20) + C(170, 740, 11) + C(500, 715, 22) + C(555, 742, 12) + E(380, 742, 50, 14);
+      return s;
+    }
+  },
+  {
+    id: 'teddy', name: 'Balloon Teddy', draw: () => {
+      let s = BG;
+      s += decor([['h', 80, 220, 2.2], ['h', 75, 480, 1.8], ['s', 60, 90, 26], ['s', 548, 330, 22], ['p', 110, 350, 22], ['p', 530, 480, 20], ['s', 520, 690, 22]]);
+      s += heart(470, 160, 6.4) + L('M432 138 Q420 150 424 168');
+      s += L('M470 218 Q455 300 482 360 Q500 430 462 496');
+      s += P('M180 640 C165 540 205 485 300 485 C395 485 435 540 420 640 C410 700 190 700 180 640Z');
+      s += E(300, 625, 76, 74);
+      s += E(215, 722, 56, 34) + E(385, 722, 56, 34) + LE(215, 726, 24, 16) + LE(385, 726, 24, 16);
+      s += C(225, 338, 48) + C(228, 342, 26) + C(375, 338, 48) + C(372, 342, 26);
+      s += E(300, 400, 125, 108);
+      s += eye(250, 385, 20) + eye(350, 385, 20);
+      s += blush(212, 432, 22, 13) + blush(388, 432, 22, 13);
+      s += E(300, 430, 55, 42) + E(300, 414, 20, 14);
+      s += L('M300 428 L300 440 M300 440 Q285 454 270 442 M300 440 Q315 454 330 442');
+      s += E(168, 612, 34, 68, 18);
+      s += E(432, 560, 32, 70, -28) + C(462, 497, 28);
+      s += bow(300, 514, 1) ;
+      return s;
+    }
+  },
+  {
+    id: 'elephant', name: 'Baby Elephant', draw: () => {
+      let s = BG;
+      s += decor([['h', 65, 120, 2.2], ['h', 540, 560, 2], ['h', 70, 640, 1.8], ['s', 545, 90, 26], ['p', 60, 230, 22], ['p', 545, 230, 22], ['s', 300, 55, 20]]);
+      s += E(300, 630, 165, 112);
+      s += E(205, 718, 50, 34) + E(395, 718, 50, 34) + L('M190 718 Q197 704 204 718 M222 718 Q229 704 236 718 M364 718 Q371 704 378 718 M396 718 Q403 704 410 718');
+      s += C(150, 335, 85) + C(156, 337, 50) + C(450, 335, 85) + C(444, 337, 50);
+      s += tube('M300 420 C300 560 360 625 420 555 C440 530 430 505 410 495', 56);
+      s += E(300, 345, 138, 118);
+      s += L('M300 228 Q285 203 270 213 M300 228 Q305 198 320 205');
+      s += eye(245, 325, 20) + eye(355, 325, 20);
+      s += blush(198, 380, 24, 14) + blush(402, 380, 24, 14);
+      s += daisy(355, 243, 17, 12, 8);
+      return s;
+    }
+  },
+  {
+    id: 'rainbow', name: 'Rainbow Day', draw: () => {
+      let s = BG;
+      s += C(95, 118, 44) + rays(95, 118, 8, 54, 82, .2);
+      s += K(80, 112, 5) + K(110, 112, 5) + L('M80 130 Q95 144 110 130');
+      for (let i = 0; i < 6; i++) s += band(300, 520, 262 - i * 24, 238 - i * 24);
+      s += cloud(95, 520, 1.5) + cloud(505, 520, 1.5) + cloud(480, 135, 1.1);
+      s += K(78, 512, 6) + K(112, 512, 6) + L('M86 530 Q95 540 104 530');
+      s += K(488, 512, 6) + K(522, 512, 6) + L('M496 530 Q505 540 514 530');
+      s += E(150, 720, 270, 110) + E(470, 728, 250, 100);
+      s += flower(95, 660, 1.2) + flower(215, 700, 1) + flower(525, 665, 1.2) + flower(420, 715, 1);
+      s += decor([['h', 300, 430, 1.8], ['h', 330, 130, 1.5], ['s', 220, 90, 22], ['p', 300, 60, 20], ['p', 560, 300, 20], ['s', 40, 330, 20]]);
+      return s;
+    }
+  },
+  {
+    id: 'octopus', name: 'Bow Octopus', draw: () => {
+      let s = BG;
+      s += C(78, 150, 24) + C(525, 120, 30) + C(110, 270, 13) + C(500, 255, 17) + C(70, 520, 20) + C(540, 500, 24);
+      s += decor([['h', 530, 215, 1.8], ['s', 60, 80, 22], ['p', 560, 380, 20], ['p', 40, 400, 20]]);
+      s += tube('M60 770 C30 710 90 680 60 620', 22) + tube('M545 770 C575 710 515 680 545 630', 22);
+      s += tube('M232 515 C140 545 95 625 140 690 C160 715 195 705 188 685', 38);
+      s += tube('M368 515 C460 545 505 625 460 690 C440 715 405 705 412 685', 38);
+      s += tube('M258 545 C205 620 190 690 220 730 C232 745 252 740 250 725', 36);
+      s += tube('M342 545 C395 620 410 690 380 730 C368 745 348 740 350 725', 36);
+      s += tube('M283 555 C264 640 264 700 284 728', 28) + tube('M317 555 C336 640 336 700 316 728', 28);
+      s += E(300, 380, 168, 180);
+      s += C(228, 268, 18) + C(300, 232, 14) + C(372, 275, 20);
+      s += eye(240, 400, 32) + eye(360, 400, 32);
+      s += blush(188, 455, 28, 16) + blush(412, 455, 28, 16);
+      s += L('M278 455 Q300 482 322 455');
+      s += bow(390, 220, 1);
+      return s;
+    }
+  },
+  {
+    id: 'cupcake', name: 'Cherry Cupcake', draw: () => {
+      let s = BG;
+      s += decor([['h', 80, 200, 2.2], ['h', 530, 190, 2], ['h', 70, 480, 1.8], ['s', 55, 90, 24], ['s', 545, 80, 26], ['p', 530, 420, 22], ['p', 105, 330, 22], ['s', 535, 560, 20]]);
+      s += E(300, 712, 205, 28);
+      s += P('M190 460 L410 460 L382 688 Q300 712 218 688Z');
+      s += L('M232 462 L246 692 M282 462 L286 703 M332 462 L318 703 M368 462 L354 692');
+      s += E(300, 432, 168, 50) + E(300, 352, 130, 46) + E(300, 282, 88, 40);
+      s += RC(222, 420, 22, 10, 5, 25) + RC(350, 428, 22, 10, 5, -20) + RC(280, 450, 22, 10, 5, 8) + RC(250, 345, 22, 10, 5, -15) + RC(335, 360, 22, 10, 5, 30) + RC(290, 285, 22, 10, 5, 10) + RC(180, 440, 22, 10, 5, -30) + RC(405, 438, 22, 10, 5, 20);
+      s += C(300, 225, 30) + L('M300 197 Q315 160 340 150') + `<circle class="w" cx="290" cy="216" r="7"/>`;
+      s += eye(262, 560, 16) + eye(338, 560, 16) + blush(228, 596, 18, 11) + blush(372, 596, 18, 11) + smile(300, 580, 14);
+      return s;
+    }
+  },
+  {
+    id: 'butterfly', name: 'Garden Butterfly', draw: () => {
+      let s = BG;
+      s += decor([['h', 70, 100, 2], ['h', 535, 90, 2.2], ['s', 300, 60, 22], ['p', 60, 330, 22], ['p', 545, 335, 22]]);
+      s += tube('M120 770 C100 720 140 700 120 650', 14) + tube('M300 770 C290 720 320 700 300 650', 14) + tube('M480 770 C500 720 460 700 480 650', 14);
+      s += flower(120, 635, 1.5) + flower(300, 635, 1.5) + flower(480, 635, 1.5);
+      const wing = P('M295 330 C240 170 90 150 80 260 C75 340 190 390 295 370Z') + C(165, 265, 38) + C(120, 235, 14) + C(190, 195, 12) +
+        P('M295 380 C220 390 130 430 150 520 C170 600 270 560 295 440Z') + C(205, 495, 26);
+      s += wing + mirror(wing);
+      s += E(300, 400, 20, 100) + C(300, 285, 26);
+      s += eye(291, 283, 7) + eye(309, 283, 7);
+      s += L('M292 262 C280 220 255 205 240 210 M308 262 C320 220 345 205 360 210') + K(240, 210, 7) + K(360, 210, 7);
+      return s;
+    }
+  }
+];
+PAGES.forEach(p => { p.art = p.draw(); });
+
+</script>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const KEY = 'colourCuddles.v1';
+  const COLOURS = [
+    ['Cherry red', '#FF4D6D'], ['Coral', '#FF8A65'], ['Orange', '#FFA62B'], ['Sunshine', '#FFD93D'], ['Lime', '#B8E04B'],
+    ['Grass', '#4CC66E'], ['Mint', '#7FE0C2'], ['Teal', '#2BB5B8'], ['Sky', '#5CC8FF'], ['Blue', '#3D7BFF'],
+    ['Grape', '#7B61FF'], ['Lilac', '#C3A6FF'], ['Bubblegum', '#FF8FC7'], ['Hot pink', '#F23C94'], ['Peach', '#FFD0B0'],
+    ['Cream', '#FFF1C9'], ['Caramel', '#C98B4E'], ['Chocolate', '#6B4226'], ['Cloud grey', '#B9B5C6'], ['Night', '#3A3350']
+  ];
+  const RAINBOW = ['#FF4D6D', '#FFA62B', '#FFD93D', '#4CC66E', '#5CC8FF', '#7B61FF', '#FF8FC7'];
+  const ZOOMS = [1, 1.6, 2.4];
+  const NOTES = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+
+  /* ---- saved data: this device only ---- */
+  let state = { sound: true, pages: {}, done: {} };
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const o = JSON.parse(raw); if (o && typeof o === 'object') state = Object.assign(state, o); }
+  } catch (e) { /* storage unavailable: carry on without saving */ }
+  state.pages = state.pages || {}; state.done = state.done || {};
+  let saveTimer = 0;
+  const persist = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { } }, 250);
+  };
+
+  /* ---- elements ---- */
+  const paper = $('paper'), wrap = $('paperwrap');
+  const gallery = $('gallery'), play = $('play');
+  let cur = null, regions = [], fills = [], hist = [], hi = 0;
+  let colour = COLOURS[8][1], rainbow = false, eraser = false, rbi = 0, zi = 0, dl = null;
+
+  const setFill = (el, c) => { if (el.classList.contains('rs')) el.style.stroke = c || ''; else el.style.fill = c || ''; };
+  const isDone = () => regions.every((el, i) => el.classList.contains('bg') || fills[i]);
+
+  /* ---- gallery ---- */
+  const starSvg = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
+  function renderGallery() {
+    const grid = $('grid');
+    grid.textContent = '';
+    PAGES.forEach(pg => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'card';
+      b.setAttribute('aria-label', 'Colour ' + pg.name + (state.done[pg.id] ? ' (finished)' : ''));
+      const th = document.createElement('div'); th.className = 'thumb';
+      th.innerHTML = '<svg viewBox="0 0 600 760" aria-hidden="true">' + pg.art + '</svg>';
+      const saved = state.pages[pg.id];
+      const rs = th.querySelectorAll('.r');
+      if (saved && saved.length === rs.length) rs.forEach((el, i) => setFill(el, saved[i]));
+      th.querySelectorAll('.r').forEach(el => { el.style.cursor = 'inherit'; });
+      const nm = document.createElement('div'); nm.className = 'cname'; nm.textContent = pg.name;
+      b.append(th, nm);
+      if (state.done[pg.id]) { const bd = document.createElement('div'); bd.className = 'badge'; bd.innerHTML = starSvg; b.append(bd); }
+      b.addEventListener('click', () => { location.hash = pg.id; });
+      grid.append(b);
+    });
+  }
+
+  /* ---- routing by hash: empty = gallery, page id = colouring desk ---- */
+  function route() {
+    const id = location.hash.replace('#', '');
+    const pg = PAGES.find(p => p.id === id);
+    if (pg) openPage(pg); else showGallery();
+  }
+  function showGallery() {
+    cur = null; closeModal();
+    play.hidden = true; gallery.hidden = false;
+    renderGallery();
+  }
+  function openPage(pg) {
+    closeModal();
+    cur = pg;
+    gallery.hidden = true; play.hidden = false;
+    $('ptitle').textContent = pg.name;
+    paper.setAttribute('aria-label', pg.name + ' colouring picture. Tap a shape to colour it.');
+    paper.innerHTML = pg.art + '<g id="fx"></g>';
+    regions = Array.from(paper.querySelectorAll('.r'));
+    const saved = state.pages[pg.id];
+    fills = (saved && saved.length === regions.length) ? saved.slice() : new Array(regions.length).fill(null);
+    regions.forEach((el, i) => { el.dataset.i = i; if (fills[i]) setFill(el, fills[i]); });
+    hist = [fills.slice()]; hi = 0;
+    zi = 0; $('zlabel').textContent = '1×';
+    wrap.scrollTo(0, 0);
+    updateTools(); fit();
+  }
+  window.addEventListener('hashchange', route);
+
+  /* ---- sizing: picture always fits, zoom lets little fingers reach tiny shapes ---- */
+  function fit() {
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    if (!w || !h) return;
+    const base = Math.min(w, h * 600 / 760) * ZOOMS[zi];
+    paper.style.width = Math.floor(base) + 'px';
+    paper.style.height = Math.floor(base * 760 / 600) + 'px';
+  }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap); else window.addEventListener('resize', fit);
+  $('zoom').addEventListener('click', () => {
+    zi = (zi + 1) % ZOOMS.length;
+    $('zlabel').textContent = ZOOMS[zi] + '×';
+    $('zoom').setAttribute('aria-label', zi === ZOOMS.length - 1 ? 'Zoom out' : 'Zoom in');
+    fit();
+    if (zi === 0) wrap.scrollTo(0, 0);
+  });
+
+  /* ---- palette & tools ---- */
+  const pal = $('palette');
+  COLOURS.forEach(([name, hex]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw'; b.style.setProperty('--c', hex);
+    b.setAttribute('aria-label', name); b.dataset.hex = hex; b.setAttribute('aria-pressed', 'false');
+    pal.append(b);
+  });
+  const rb = document.createElement('button');
+  rb.type = 'button'; rb.className = 'sw rb'; rb.setAttribute('aria-label', 'Rainbow, changes colour with every tap'); rb.setAttribute('aria-pressed', 'false');
+  pal.prepend(rb);
+  function syncPalette() {
+    pal.querySelectorAll('.sw').forEach(b => {
+      const on = !eraser && (b === rb ? rainbow : (!rainbow && b.dataset.hex === colour));
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    $('eraser').setAttribute('aria-pressed', eraser ? 'true' : 'false');
+  }
+  pal.addEventListener('click', e => {
+    const b = e.target.closest('.sw'); if (!b) return;
+    eraser = false;
+    if (b === rb) rainbow = true; else { rainbow = false; colour = b.dataset.hex; }
+    syncPalette(); blip(0);
+  });
+  $('eraser').addEventListener('click', () => { eraser = !eraser; syncPalette(); });
+
+  function updateTools() {
+    $('undo').disabled = hi <= 0;
+    $('redo').disabled = hi >= hist.length - 1;
+    $('clear').disabled = !fills.some(Boolean);
+    syncPalette();
+  }
+  function commit() {
+    hist = hist.slice(0, hi + 1); hist.push(fills.slice());
+    if (hist.length > 100) hist.shift();
+    hi = hist.length - 1;
+    state.pages[cur.id] = fills.slice();
+    const fin = isDone(), was = !!state.done[cur.id];
+    state.done[cur.id] = fin;
+    persist(); updateTools();
+    if (fin && !was) setTimeout(celebrate, 450);
+  }
+  function restore(i) {
+    hi = i; fills = hist[hi].slice();
+    regions.forEach((el, k) => setFill(el, fills[k]));
+    state.pages[cur.id] = fills.slice();
+    state.done[cur.id] = isDone();
+    persist(); updateTools();
+  }
+  $('undo').addEventListener('click', () => { if (hi > 0) restore(hi - 1); });
+  $('redo').addEventListener('click', () => { if (hi < hist.length - 1) restore(hi + 1); });
+  $('clear').addEventListener('click', () => {
+    modal({
+      title: 'Start this picture again?', text: 'All the colours on this picture will be wiped off.',
+      actions: [
+        { label: 'Yes, clear it', main: true, fn: () => { fills = fills.map(() => null); regions.forEach(el => setFill(el, null)); commit(); } },
+        { label: 'No, keep colouring' }
+      ]
+    });
+  });
+
+  /* ---- tapping the picture ---- */
+  paper.addEventListener('click', e => {
+    const el = e.target.closest && e.target.closest('.r');
+    if (!el || !cur) return;
+    const i = +el.dataset.i;
+    let c = null;
+    if (!eraser) { c = rainbow ? RAINBOW[rbi++ % RAINBOW.length] : colour; }
+    if ((fills[i] || null) === c) return;
+    fills[i] = c; setFill(el, c);
+    sparks(e.clientX, e.clientY, c);
+    blip(eraser ? -1 : (Math.random() * NOTES.length) | 0);
+    commit();
+  });
+  function sparks(cx, cy, c) {
+    const fxg = $('fx'); if (!fxg || !paper.getScreenCTM) return;
+    let pt;
+    try { const p = paper.createSVGPoint(); p.x = cx; p.y = cy; pt = p.matrixTransform(paper.getScreenCTM().inverse()); } catch (e) { return; }
+    const n = eraser ? 3 : 6;
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * Math.PI * 2 + Math.random(), d = 34 + Math.random() * 26;
+      const s = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      s.setAttribute('class', 'sp');
+      s.setAttribute('d', `M${pt.x} ${pt.y - 9} Q${pt.x + 1.5} ${pt.y - 1.5} ${pt.x + 9} ${pt.y} Q${pt.x + 1.5} ${pt.y + 1.5} ${pt.x} ${pt.y + 9} Q${pt.x - 1.5} ${pt.y + 1.5} ${pt.x - 9} ${pt.y} Q${pt.x - 1.5} ${pt.y - 1.5} ${pt.x} ${pt.y - 9}Z`);
+      s.style.setProperty('--dx', (Math.cos(a) * d).toFixed(1) + 'px');
+      s.style.setProperty('--dy', (Math.sin(a) * d).toFixed(1) + 'px');
+      if (c && k % 2) s.style.fill = c;
+      fxg.append(s);
+      setTimeout(() => s.remove(), 700);
+    }
+  }
+
+  /* ---- sound (tiny synthesized pops, off with one tap) ---- */
+  let ac = null;
+  function blip(n) {
+    if (!state.sound) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+      o.type = 'sine'; o.frequency.value = n < 0 ? 330 : NOTES[n];
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.25);
+    } catch (e) { }
+  }
+  function syncSound() {
+    $('sound').setAttribute('aria-pressed', state.sound ? 'true' : 'false');
+    $('sound').setAttribute('aria-label', state.sound ? 'Sound on. Tap to turn off' : 'Sound off. Tap to turn on');
+    $('wave').hidden = !state.sound; $('cross').hidden = state.sound;
+  }
+  $('sound').addEventListener('click', () => { state.sound = !state.sound; syncSound(); persist(); blip(2); });
+  syncSound();
+
+  /* ---- dialogs ---- */
+  function closeModal() { const m = $('modal'); m.hidden = true; m.textContent = ''; }
+  function modal({ title, text, actions, confetti }) {
+    const m = $('modal'); m.textContent = '';
+    const card = document.createElement('div'); card.className = 'mcard';
+    card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-label', title);
+    const h = document.createElement('h3'); h.textContent = title;
+    const p = document.createElement('p'); p.textContent = text;
+    const acts = document.createElement('div'); acts.className = 'macts';
+    let first = null;
+    actions.forEach(a => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mbtn' + (a.main ? ' main' : ''); b.textContent = a.label;
+      b.addEventListener('click', () => { closeModal(); if (a.fn) a.fn(); });
+      acts.append(b); if (!first) first = b;
+    });
+    card.append(h, p, acts); m.append(card);
+    if (confetti) {
+      const cols = ['#FF4D6D', '#FFD93D', '#4CC66E', '#5CC8FF', '#7B61FF', '#FF8FC7', '#FFA62B'];
+      for (let i = 0; i < 36; i++) {
+        const c = document.createElement('i'); c.className = 'confetti';
+        c.style.left = (Math.random() * 100) + '%'; c.style.background = cols[i % cols.length];
+        c.style.animationDelay = (Math.random() * 1.2).toFixed(2) + 's';
+        c.style.animationDuration = (2.2 + Math.random() * 1.6).toFixed(2) + 's';
+        m.append(c);
+      }
+    }
+    m.hidden = false; if (first) first.focus();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal').hidden) closeModal(); });
+  function toast(t) {
+    const el = $('toast'); el.textContent = t; el.hidden = false;
+    clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 2600);
+  }
+  function celebrate() {
+    if (!cur) return;
+    const i = PAGES.findIndex(p => p.id === cur.id), next = PAGES[(i + 1) % PAGES.length];
+    const acts = [{ label: 'Next picture: ' + next.name, main: true, fn: () => { location.hash = next.id; } }];
+    if (dl) acts.push({ label: 'Save my picture', fn: savePng });
+    acts.push({ label: 'Keep colouring' });
+    modal({ title: 'Beautiful!', text: 'You finished the ' + cur.name.toLowerCase() + '. Great colouring!', actions: acts, confetti: true });
+    [0, 1, 3, 5, 2, 4].forEach((n, k) => setTimeout(() => blip(n), k * 110));
+  }
+
+  /* ---- save as a picture file (only offered when the viewer can save files) ---- */
+  async function savePng() {
+    if (!dl || !cur) return;
+    try {
+      const W = 1200, H = 1520;
+      const clone = paper.cloneNode(true);
+      const fxg = clone.querySelector('#fx'); if (fxg) fxg.remove();
+      clone.removeAttribute('style'); clone.removeAttribute('role'); clone.removeAttribute('aria-label');
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); clone.setAttribute('width', W); clone.setAttribute('height', H);
+      const st = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      st.textContent = $('artcss').textContent; clone.prepend(st);
+      const xml = new XMLSerializer().serializeToString(clone);
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml); });
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
+      const blob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
+      await dl.save({ filename: 'colour-cuddles-' + cur.id + '.png', data: blob });
+      toast('Picture saved!');
+    } catch (err) {
+      if (err && err.code === 'declined') return;
+      toast('Sorry, the picture could not be saved.');
+    }
+  }
+  $('save').addEventListener('click', savePng);
+  (async () => {
+    try { if (window.claude && claude.use) dl = await claude.use('downloads'); } catch (e) { dl = null; }
+    $('save').hidden = !dl;
+  })();
+
+  /* ---- navigation buttons ---- */
+  $('back').addEventListener('click', () => { location.hash = ''; if (!location.hash) showGallery(); });
+  $('eraseAll').addEventListener('click', () => {
+    modal({
+      title: 'Erase everything?', text: 'This deletes all your coloured pictures from this device. It cannot be undone.',
+      actions: [
+        { label: 'Yes, erase all', main: true, fn: () => { state.pages = {}; state.done = {}; try { localStorage.removeItem(KEY); } catch (e) { } renderGallery(); toast('All pictures erased.'); } },
+        { label: 'No, keep them' }
+      ]
+    });
+  });
+
+  route();
+})();
+</script>
+
+</body></html>
